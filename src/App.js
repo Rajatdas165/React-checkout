@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 
 export default function App() {
@@ -10,6 +10,20 @@ export default function App() {
     payment: "UPI",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [cart, setCart] = useState([]);
+
+  // Read cart from localStorage when app loads
+  useEffect(() => {
+    const savedCart = localStorage.getItem("cart");
+    if (savedCart) {
+      setCart(JSON.parse(savedCart));
+    }
+  }, []);
+
+  // Calculate totals
+  const itemsTotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  const shipping = cart.length > 0 ? 50 : 0;
+  const grandTotal = itemsTotal + shipping;
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -17,6 +31,9 @@ export default function App() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    alert(`Thank you, ${form.name}. Your order of ₹${grandTotal} is placed!`);
+    localStorage.removeItem("cart"); // clear cart
+    setCart([]); // update state
     setSubmitted(true);
   };
 
@@ -67,17 +84,26 @@ export default function App() {
           </select>
 
           <h2>Order Summary</h2>
-          <p>Items Total: ₹1,499</p>
-          <p>Shipping: ₹50</p>
-          <p><strong>Grand Total: ₹1,549</strong></p>
+          <ul>
+            {cart.map((item, index) => (
+              <li key={index}>
+                {item.name} × {item.qty} = ₹{item.price * item.qty}
+              </li>
+            ))}
+          </ul>
+          <p>Items Total: ₹{itemsTotal}</p>
+          <p>Shipping: ₹{shipping}</p>
+          <p><strong>Grand Total: ₹{grandTotal}</strong></p>
 
           <button type="submit">Place Order</button>
         </form>
       ) : (
         <div className="success-message">
           <h2>🎉 Order Placed Successfully!</h2>
-          <p>Thank you, {form.name}. Your order will be delivered soon.</p>
-          <a className="back-link" href="https://rajatdas165.github.io/Ecommerce-Website/">← Back to store</a>
+          <p>Thank you, {form.name}. Your order of ₹{grandTotal} will be delivered soon.</p>
+          <a className="back-link" href="https://rajatdas165.github.io/Ecommerce-Website/">
+            ← Back to store
+          </a>
         </div>
       )}
     </div>
