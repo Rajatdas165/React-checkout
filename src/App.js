@@ -11,6 +11,7 @@ export default function App() {
   });
   const [submitted, setSubmitted] = useState(false);
   const [cart, setCart] = useState([]);
+  const [finalTotal, setFinalTotal] = useState(0); // ✅ store final total
 
   // Read cart from localStorage when app loads
   useEffect(() => {
@@ -36,7 +37,9 @@ export default function App() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setFinalTotal(grandTotal); // ✅ save before clearing
     alert(`Thank you, ${form.name}. Your order of ₹${grandTotal} is placed!`);
+
     localStorage.removeItem("cart"); // clear cart
     setCart([]); // update state
     setSubmitted(true);
@@ -112,7 +115,7 @@ export default function App() {
         <div className="success-message">
           <h2>🎉 Order Placed Successfully!</h2>
           <p>
-            Thank you, {form.name}. Your order of ₹{grandTotal} will be delivered
+            Thank you, {form.name}. Your order of ₹{finalTotal} will be delivered
             soon.
           </p>
           <a
