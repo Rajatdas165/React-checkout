@@ -20,8 +20,13 @@ export default function App() {
     }
   }, []);
 
-  // Calculate totals
-  const itemsTotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+  // ✅ Fix: Ensure price & qty are numbers
+  const itemsTotal = cart.reduce((sum, item) => {
+    const price = Number(item.price) || 0;
+    const qty = Number(item.qty) || 0;
+    return sum + price * qty;
+  }, 0);
+
   const shipping = cart.length > 0 ? 50 : 0;
   const grandTotal = itemsTotal + shipping;
 
@@ -85,23 +90,35 @@ export default function App() {
 
           <h2>Order Summary</h2>
           <ul>
-            {cart.map((item, index) => (
-              <li key={index}>
-                {item.name} × {item.qty} = ₹{item.price * item.qty}
-              </li>
-            ))}
+            {cart.map((item, index) => {
+              const price = Number(item.price) || 0;
+              const qty = Number(item.qty) || 0;
+              return (
+                <li key={index}>
+                  {item.name} × {qty} = ₹{price * qty}
+                </li>
+              );
+            })}
           </ul>
           <p>Items Total: ₹{itemsTotal}</p>
           <p>Shipping: ₹{shipping}</p>
-          <p><strong>Grand Total: ₹{grandTotal}</strong></p>
+          <p>
+            <strong>Grand Total: ₹{grandTotal}</strong>
+          </p>
 
           <button type="submit">Place Order</button>
         </form>
       ) : (
         <div className="success-message">
           <h2>🎉 Order Placed Successfully!</h2>
-          <p>Thank you, {form.name}. Your order of ₹{grandTotal} will be delivered soon.</p>
-          <a className="back-link" href="https://rajatdas165.github.io/Ecommerce-Website/">
+          <p>
+            Thank you, {form.name}. Your order of ₹{grandTotal} will be delivered
+            soon.
+          </p>
+          <a
+            className="back-link"
+            href="https://rajatdas165.github.io/Ecommerce-Website/"
+          >
             ← Back to store
           </a>
         </div>
