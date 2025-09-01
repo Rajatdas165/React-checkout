@@ -11,7 +11,8 @@ export default function App() {
   });
   const [submitted, setSubmitted] = useState(false);
   const [cart, setCart] = useState([]);
-  const [finalTotal, setFinalTotal] = useState(0); // ✅ store final total
+  const [finalTotal, setFinalTotal] = useState(0); 
+  const [finalCart, setFinalCart] = useState([]); // ✅ store cart snapshot
 
   // Read cart from localStorage when app loads
   useEffect(() => {
@@ -21,7 +22,7 @@ export default function App() {
     }
   }, []);
 
-  // ✅ Fix: Ensure price & qty are numbers
+  // Calculate totals
   const itemsTotal = cart.reduce((sum, item) => {
     const price = Number(item.price) || 0;
     const qty = Number(item.qty) || 0;
@@ -37,11 +38,13 @@ export default function App() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setFinalTotal(grandTotal); // ✅ save before clearing
-    alert(`Thank you, ${form.name}. Your order of ₹${grandTotal} is placed!`);
 
-    localStorage.removeItem("cart"); // clear cart
-    setCart([]); // update state
+    // ✅ Save snapshot before clearing
+    setFinalTotal(grandTotal);
+    setFinalCart(cart);
+
+    localStorage.removeItem("cart"); 
+    setCart([]); 
     setSubmitted(true);
   };
 
@@ -52,37 +55,10 @@ export default function App() {
       {!submitted ? (
         <form className="checkout-form" onSubmit={handleSubmit}>
           <h2>Billing Details</h2>
-          <input
-            type="text"
-            name="name"
-            placeholder="Full Name"
-            value={form.name}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="email"
-            name="email"
-            placeholder="Email"
-            value={form.email}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="tel"
-            name="phone"
-            placeholder="Phone"
-            value={form.phone}
-            onChange={handleChange}
-            required
-          />
-          <textarea
-            name="address"
-            placeholder="Address"
-            value={form.address}
-            onChange={handleChange}
-            required
-          />
+          <input type="text" name="name" placeholder="Full Name" value={form.name} onChange={handleChange} required />
+          <input type="email" name="email" placeholder="Email" value={form.email} onChange={handleChange} required />
+          <input type="tel" name="phone" placeholder="Phone" value={form.phone} onChange={handleChange} required />
+          <textarea name="address" placeholder="Address" value={form.address} onChange={handleChange} required />
 
           <h2>Payment Method</h2>
           <select name="payment" value={form.payment} onChange={handleChange}>
@@ -105,9 +81,7 @@ export default function App() {
           </ul>
           <p>Items Total: ₹{itemsTotal}</p>
           <p>Shipping: ₹{shipping}</p>
-          <p>
-            <strong>Grand Total: ₹{grandTotal}</strong>
-          </p>
+          <p><strong>Grand Total: ₹{grandTotal}</strong></p>
 
           <button type="submit">Place Order</button>
         </form>
@@ -115,13 +89,19 @@ export default function App() {
         <div className="success-message">
           <h2>🎉 Order Placed Successfully!</h2>
           <p>
-            Thank you, {form.name}. Your order of ₹{finalTotal} will be delivered
-            soon.
+            Thank you, {form.name}. Your order of ₹{finalTotal} will be delivered soon.
           </p>
-          <a
-            className="back-link"
-            href="https://rajatdas165.github.io/Ecommerce-Website/"
-          >
+
+          <h3>🛍️ Ordered Items:</h3>
+          <ul>
+            {finalCart.map((item, index) => (
+              <li key={index}>
+                {item.name} × {item.qty} = ₹{Number(item.price) * Number(item.qty)}
+              </li>
+            ))}
+          </ul>
+
+          <a className="back-link" href="https://rajatdas165.github.io/Ecommerce-Website/">
             ← Back to store
           </a>
         </div>
